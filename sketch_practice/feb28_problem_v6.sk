@@ -70,6 +70,6 @@ inps[2] = {??,??,??,??,??}; outs[2] = ??;
 fl(i,NUMIO){
 	assert (f(inps[i]) == outs[i]);
 }
-minimize C;
+//minimize C;
 }
 

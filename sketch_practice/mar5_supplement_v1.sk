@@ -1,7 +1,7 @@
 	#define NUMINPS 5
 	#define BND 3
 	#define NUMIO 3
-	#define CTRBND 1
+	#define CTRBND 2
 	#define fl(i,n) for(int i=0;i<n;i++) 
 void VARIABLE(int x);
 void NEGATION();

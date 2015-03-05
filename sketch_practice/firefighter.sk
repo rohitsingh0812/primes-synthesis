@@ -1,0 +1,43 @@
+
+void print(int n, int[n] a);
+
+void firefighter(){
+	//FIR, IRE
+	//123, 234
+	int n = ??(4);
+	int[n] a;
+	int k=0;
+	repeat(n){ 
+		a[k] = ??(4);
+		k++;
+	}
+	int i = ??;
+	int j = ??;
+	assert (a[i] == 1 && a[i+1] == 2 && a[i+2] == 3);
+	assert (a[j] == 4 && a[j+1] == 5 && a[j+2] == 6);
+	int l=??;
+	assert(a[l] == 3 && a[l+1] == 4);
+	minimize(n);
+	print(n,a);
+}
+
+
+harness void regex(){
+	//?ab, a?b
+	//012, 102
+	int n =3;
+	int[n] a = {??,??,??};
+	assert(a[0] == 1 || a[0] == 0 || a[0] ==2 || a[0] == 3);
+	assert(a[1] == 1 || a[1] == 0);
+ 	assert(a[2] == 2 || a[2] == 0);
+
+	assert(a[0] == 1 || a[0] == 0);
+        assert(a[1] == 1 || a[1] == 0 || a[1] ==2 || a[1] == 3);
+        assert(a[2] == 2 || a[2] == 0);	
+	print (n,a);
+	int ctr0 = 0;
+	for(int i=0;i<n;i++){
+		if(a[i] == 0) ctr0++;
+	}
+	minimize(ctr0);
+}

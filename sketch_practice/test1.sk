@@ -1,0 +1,8 @@
+void print(int y);
+
+harness void doubleSketch(int x){
+  int hole = ??;
+  int t = x * hole;
+  print(hole);
+  assert t == x + x + x;
+}

@@ -1,0 +1,75 @@
+	#define NUMINPS 5
+	#define BND 3
+	#define NUMIO 3
+	#define CTRBND 3
+	#define fl(i,n) for(int i=0;i<n;i++) 
+void VARIABLE(int x);
+void NEGATION();
+void AND();
+void OR();
+void CONST(int val);
+int C;
+generator bit gen(bit[NUMINPS] x, int bnd, ref int ctr){
+	assert bnd > 0;
+	//int arrayIndex = ??;
+	//assert(arrayIndex >= 0 && arrayIndex <=NUMINPS - 1);
+	if (??) {
+ctr++;
+int arrInd = ??;
+VARIABLE(arrInd);
+return x[arrInd];
+}
+	if (??)  {
+		ctr ++;
+		NEGATION();
+return !gen(x, bnd - 1,ctr);
+}
+	if (??) {
+		ctr ++;
+		AND();
+return gen(x, bnd-1,ctr) &&  gen(x, bnd - 1, ctr); 
+}
+	if (??) {
+		ctr ++;
+		OR();
+return gen(x, bnd-1,ctr) ||  gen(x, bnd - 1, ctr) ;
+}
+	/*if (??) {
+		CONST(0);
+return 0;
+}
+	if (??) {
+		CONST(1);
+return 1;
+}*/
+assert(false);
+}
+bit f(bit[NUMINPS] x){
+	int ctr=0;
+bit return_value =  gen(x,BND, ctr);
+	//assert(ctr==CTRBND);
+C=ctr;
+return return_value;
+}
+/*bit g(bit[NUMINPS] x){
+	int ctr=0;
+bit return_value =  gen(x,BND, ctr);
+	assert(ctr<CTRBND);
+return return_value;
+}*/
+
+harness void main(bit[NUMINPS] x){
+	//NUMINPS variables - x[0], x[1],...
+	//2 constants 0 & 1
+	bit [NUMINPS][NUMIO] inps;
+	bit [NUMIO] outs;
+C=0;
+inps[0] = {0,1,1,0,1}; outs[0] = 1;
+inps[1] = {1,1,0,1,0}; outs[1] = 0;
+inps[2] = {??,??,??,??,??}; outs[2] = ??;
+fl(i,NUMIO){
+	assert (f(inps[i]) == outs[i]);
+}
+//minimize C;
+}
+

@@ -42,6 +42,7 @@ bit f(bit[NUMINPS] x){
 	bit return_value =  gen(x,BND, ctr);
 	assert(ctr<CTRBND);
 	CTR(ctr);
+	minimize ctr;
 	return return_value;
 }
 

@@ -1,0 +1,53 @@
+adt binop{
+	Add {}
+	Sub {}
+	Mult {}
+	Div {}
+	Mod {}
+}
+
+adt unaryop{
+	Not {}
+	USub {}
+}
+
+adt boolop{
+	And {}
+	Or {}
+}
+
+adt expr{
+	BoolOp {boolop op; expr left; expr right;}
+	BinOp {binop op; expr left; expr right;}	
+	UnaryOp {unaryop op; expr operand;}
+	Num {int val;}
+	Var {int id;}
+}
+
+generator expr getExp(int depth){
+	if(depth == 1){
+		if(??){
+			return new Num(val=??);
+		}
+		else if (??){
+			return new Var(id=??);
+		}	 		
+		assert false;	
+	}
+	else{
+		if(??){
+			return new BinOp(op= new Mult(),
+				left=getExp(depth-1), 
+				right=getExp(depth-1));
+		}		
+		assert false;
+	}
+}
+
+harness void main(){
+	expr e1 = new BinOp(op= new Mult(), left= new Num(val=2), 
+			right= new Num(val=4));
+		
+}
+
+

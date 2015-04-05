@@ -44,7 +44,23 @@ adt node{
  }
 
 
+ void foo(int x);
 
+ harness void main (){
+   node e = new FunctionDef(
+   id=0,
+   arg = new Name(id=0),
+   stmt = new If(
+            test=new NotEq(left=new Div(left=new Name(id = 0),right=new Num(val=10)),right=new Num(val=0)),
+            then=new Return(retval=new Plus(left=new Mod(left=new Name(id=0),right=new Num(val=10)),right=new Call(id=0,param=new Div(left=new Name(id=0),right=new Num(val=10))))),
+            orelse=new Return(retval=new Name(id=0)),
+          )
+   );
+   int[1] assign = {132};
+   node[1] functions;
+   int ival = interpret(1,1,e,assign,functions);
+   foo(ival);
+ }
 
 /*int size(expr e){
      switch(e){

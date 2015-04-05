@@ -1,0 +1,69 @@
+ expr{
+     Var{ int id; }
+     And{ expr left; expr right; }
+     Or{ expr left; expr right; }
+     Not{ expr left; }
+     Const{ bit val; }
+}
+
+adt state{
+     S{ bit out; bit tainted; }
+}
+/*
+adt ndprog([int n] , ref int idx, int[n] randomness){
+     int t = randomness[idx++];
+     if(t==0){ return new Var(id = randomness[idx++]); }
+     if(t==1){ return new And(left= ndprog(idx, randomness),
+right=ndprog(idx, randomness)); }
+     if(t==2){ return new Or(left= ndprog(idx, randomness),
+right=ndprog(idx, randomness));}
+}
+*/
+
+S interpret([int n], expr e, bit[n] assign){
+     switch(e){
+         case Var: return new S(out=assign[e.id], tainted=false);
+         case And: return interpret(e.left, assign) &&
+interpret(e.right, assign);
+         case Or: return interpret(e.left, assign) || interpret(e.right,
+assign);
+         case Not: return ! interpret(e.left, assign);
+         case Const: return e.val;
+     }
+     return false;
+}
+
+int size(expr e){
+     switch(e){
+         case Var: return 1;
+         case And: return size(e.left)+ size(e.right) + 1;
+         case Or: return size(e.left)+ size(e.right) + 1;
+         case Not: return  size(e.left)+1;
+         case Const: return 1;
+     }
+     return 0;
+}
+
+
+void foo(expr e){}
+
+harness void main(int[10] randomness){
+     expr t2 = ??(3, {});
+     int idx =0;
+     expr t3 = ndprog(idx, randomness);
+     bit[4] in1 = ??;
+     bit[4] in2 = ??;
+     assert in1 != in2;
+     bit eq1 = interpret(t2, in1) == interpret(t3, in1);
+     bit eq2 = interpret(t2, in2) == interpret(t3, in2);
+     if(eq1 && eq2){
+         assert size(t3)>= size(t2);
+     }
+
+
+
+
+     assert interpret(t2, t) != interpret(t3, t);
+     assert size(t2)> 2;
+     assert size(t3)> 2;
+}

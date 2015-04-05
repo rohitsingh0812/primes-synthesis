@@ -8,11 +8,11 @@ adt node{
       Call {int id; node param;}
       If {node test; node then; node orelse;}
       Return {node retval;}
-      FunctionDef {int id; node arg; node stmt;}
+      FunctionDef {int id; Name arg; node stmt;}
  }
 
  //assume FunctionDef is parsed beforehand and the info is stored in node[m] functions
- int interpret([int n, int m], node e, int[n] assign, node[m] functions){
+ int interpret([int n, int m], node e, int[n] assign, FunctionDef[m] functions){
       switch(e){
           case Name: return assign[e.id];
           case Num: return e.val;
@@ -22,7 +22,7 @@ adt node{
           case Div: return interpret(e.left, assign,functions) / interpret(e.right, assign,functions);
           case NotEq: return interpret(e.left, assign,functions) != interpret(e.right, assign,functions);
           case If: {
-                if(interpret(e.test,assign,functions)){
+                if(interpret(e.test,assign,functions) == 1){
                     return interpret(e.then,assign,functions);
                 }
                 else{
@@ -33,11 +33,11 @@ adt node{
           case Call: {
                int paramval = interpret(e.param,assign,functions);
                assign[functions[e.id].arg.id] = paramval;
-               return interpet(functions[e.id].stmt,assign,functions);
+               return interpret(functions[e.id].stmt,assign,functions);
           }
           case FunctionDef: {
                functions[e.id] = e;
-               return interpet(e.stmt,assign,functions);
+               return interpret(e.stmt,assign,functions);
           }
       }
       assert false;
@@ -54,8 +54,8 @@ adt node{
             )
           );
    int[1] assign = {132};
-   node[1] functions;
-   int ival = interpret(1,1,e,assign,functions);
+   FunctionDef[1] functions;
+   int ival = interpret(e,assign,functions);
    foo(ival);
  }
 

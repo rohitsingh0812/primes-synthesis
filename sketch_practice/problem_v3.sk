@@ -1,0 +1,40 @@
+	#define NUMINPS 5
+	#define BND 3
+	#define NUMIO 2
+	#define fl(i,n) for(int i=0;i<n;i++) 
+generator bit gen(bit[NUMINPS] x, int bnd){
+	assert bnd > 0;
+	//int arrayIndex = ??;
+	//assert(arrayIndex >= 0 && arrayIndex <=NUMINPS - 1);
+	if (??) return x[??];
+	if (??) return !gen(x, bnd - 1);
+	if (??) return gen(x, bnd-1) &&  gen(x, bnd - 1) ;
+	if (??) return gen(x, bnd-1) ||  gen(x, bnd - 1) ;
+	if (??) return 0;
+	if (??) return 1;
+}
+bit f(bit[NUMINPS] x){
+	return gen(x,BND);
+}
+harness void main(bit[NUMINPS] x){
+	//NUMINPS variables - x[0], x[1],...
+	//2 constants 0 & 1
+	bit [NUMINPS][NUMIO] inps;
+	bit [NUMIO] outs;
+inps[0] = {0,1,1,0,1}; outs[0] = 1;
+inps[1] = {1,1,0,1,0}; outs[1] = 0;
+fl(i,NUMIO){
+	assert f(inps[i]) == outs[i];
+} 
+	//first i/o
+	//bit[NUMINPS] x1 = {0,1,1,0,1};
+//bit op1 = 1;
+	//assert f(x1) == op1;
+	//second i/o
+	//bit[NUMINPS] x2 = {1,1,0,1,0};
+//bit op2 = 0;
+	//assert f(x2) == op2;
+
+}
+
+

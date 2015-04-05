@@ -1,0 +1,31 @@
+generator bit gen(bit[5] x, int bnd){
+	assert bnd > 0;
+	//int arrayIndex = ??;
+	//assert(arrayIndex >= 0 && arrayIndex <=4);
+	if (??) return x[??];
+	if (??) return !gen(x, bnd - 1);
+	if (??) return gen(x, bnd-1) &&  gen(x, bnd - 1) ;
+	if (??) return gen(x, bnd-1) ||  gen(x, bnd - 1) ;
+	if (??) return 0;
+	if (??) return 1;
+}
+
+bit f(bit[5] x){
+	return gen(x,3);
+}
+harness void main(bit[5] x){
+	//5 variables - x[0], x[1],...
+	//2 constants 0 & 1
+	
+	//first i/o
+	bit[5] x1 = {0,1,1,0,1};
+bit op1 = 1;
+	assert f(x1) == op1;
+	//second i/o
+	bit[5] x2 = {1,1,0,1,0};
+bit op2 = 0;
+	assert f(x2) == op2;
+
+}
+
+

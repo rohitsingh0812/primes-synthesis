@@ -1,0 +1,44 @@
+adt NODE {
+  ARR_R { NODE index; NODE inputarr; }
+  ARR_W { NODE index; NODE old_array; NODE new_value;}
+  //ARR_CREATE { }
+  AND { NODE left; NODE right; }
+  OR { NODE left; NODE right; }
+  XOR { NODE left; NODE right; }
+  PLUS { NODE left; NODE right; }
+  TIMES { NODE left; NODE right; }
+  DIV { NODE left; NODE right; }
+  MOD { NODE left; NODE right; }
+  LT { NODE left; NODE right; }
+  EQ { NODE left; NODE right; }
+  NOT { NODE child; }
+  NEG { NODE child; }
+  SRC_INT {int id;}
+  SRC_ARR {int id;}
+  CONST_INT {int val;}
+  CONST_ARR {int n; int[n] vals;}
+  //CTRL
+  //DST
+  //UFUN
+  ARRACC {NODE index; NODE v0; NODE v1; }
+  //ARRACC {NODE index; int n; NODE[n] v;} //Usually v.size = 2
+  //ARRASS
+  //ACTRL
+  //ASSERT
+}
+
+
+//generator just use ??(depth, {Array of Nodes to use maybe})
+//what about specific constraints? like stricter type checking?
+// things which cannot be evaluated
+//sanity check constraint
+
+NODE interpret([int n],[int m], NODE root, int[n] assign_int, CONST_ARR[m] assign_arr){
+  switch (root){
+    case SRC_INT: return new CONST_INT(val = assign_int[root.id]);
+    case ARR_R: {
+
+    }
+
+  }
+}

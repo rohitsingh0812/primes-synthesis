@@ -1,39 +1,46 @@
- expr{
-     Var{ int id; }
-     And{ expr left; expr right; }
-     Or{ expr left; expr right; }
-     Not{ expr left; }
-     Const{ bit val; }
-}
+ adt node{
+      Name{ int id; }
+      Num{ int val; }
+      Plus {node left; node right;}
+      Mod {node left; node right;}
+      Div {node left; node right;}
+      NotEq {node left; node right;}
+      Call {int id; int n; node[n] params;}
+      If { node test; node then; node else;}
+      Return { node retval;}
+      FunctionDef(int id; int na; node[na] args; int ns; node[ns] stmts;}
+ }
 
-adt state{
-     S{ bit out; bit tainted; }
-}
-/*
-adt ndprog([int n] , ref int idx, int[n] randomness){
-     int t = randomness[idx++];
-     if(t==0){ return new Var(id = randomness[idx++]); }
-     if(t==1){ return new And(left= ndprog(idx, randomness),
-right=ndprog(idx, randomness)); }
-     if(t==2){ return new Or(left= ndprog(idx, randomness),
-right=ndprog(idx, randomness));}
-}
-*/
+ //assume FunctionDef is parsed beforehand and the info is stored in node[m] functions
+ int interpret([int n], [int m], node e, int[n] assign, node[m] functions){
+      switch(e){
+          case Name: return assign[e.id];
+          case Num: return e.val;
+          case Plus: return interpret(e.left,assign,functions) + interpret(e.right,assign,functions);
+          case Mod: return interpret(e.left,assign,functions) % interpret(e.right,assign,functions);
 
-S interpret([int n], expr e, bit[n] assign){
-     switch(e){
-         case Var: return new S(out=assign[e.id], tainted=false);
-         case And: return interpret(e.left, assign) &&
-interpret(e.right, assign);
-         case Or: return interpret(e.left, assign) || interpret(e.right,
-assign);
-         case Not: return ! interpret(e.left, assign);
-         case Const: return e.val;
-     }
-     return false;
-}
+          case Div: return interpret(e.left, assign,functions) / interpret(e.right, assign,functions);
+          case NotEq: return interpret(e.left, assign,functions) != interpret(e.right, assign,functions);
+          case If: {
+                if(interpret(e.test,assign,functions)){
+                    return interpret(e.then,assign,functions);
+                }
+                else{
+                    return interpret(e.else,assign,functions);
+                }
+          }
+          case Return: return interpret(e.retval,assign,functions);
+          case Call: {
+               return interpet(functions[e.id],assign,functions);
+          }
+      }
+      assert false;
+ }
 
-int size(expr e){
+
+
+
+/*int size(expr e){
      switch(e){
          case Var: return 1;
          case And: return size(e.left)+ size(e.right) + 1;
@@ -67,3 +74,4 @@ harness void main(int[10] randomness){
      assert size(t2)> 2;
      assert size(t3)> 2;
 }
+*/

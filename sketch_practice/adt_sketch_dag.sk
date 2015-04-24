@@ -1,6 +1,15 @@
+//adt OTYPE {
+int BOOL = 0;
+int INT = 1;
+int INT_ARR = 2;
+int BOOL_ARR = 3;
+//}
+
+
 adt NODE {
   ARR_R { NODE index; NODE inputarr; }
   ARR_W { NODE index; NODE old_array; NODE new_value;}
+  /*ARRACC {NODE index; NODE v0; NODE v1; }
   //ARR_CREATE { }
   AND { NODE left; NODE right; }
   OR { NODE left; NODE right; }
@@ -12,19 +21,22 @@ adt NODE {
   LT { NODE left; NODE right; }
   EQ { NODE left; NODE right; }
   NOT { NODE child; }
-  NEG { NODE child; }
-  SRC_INT {int id;}
-  SRC_ARR {int id;}
-  CONST_INT {int val;}
-  CONST_ARR {int n; int[n] vals;}
+  NEG { NODE child; }*/
+  SRC {int id; int type;}
+  CONST { int val; int sz; int[sz] avals; int type;
+    /*CONST_BOOL { bit bval;}
+    CONST_INT {int ival;}
+    CONST_BOOL_ARR {int sz; bit[sz] bvals;}
+    CONST_INT_ARR {int sz; int[sz] ivals;}    */
+  }
   //CTRL
   //DST
   //UFUN
-  ARRACC {NODE index; NODE v0; NODE v1; }
+  
   //ARRACC {NODE index; int n; NODE[n] v;} //Usually v.size = 2
   //ARRASS
-  //ACTRL
-  //ASSERT
+  //ACTRL 
+  //ASSERT 
 }
 
 
@@ -33,12 +45,57 @@ adt NODE {
 // things which cannot be evaluated
 //sanity check constraint
 
-NODE interpret([int n],[int m], NODE root, int[n] assign_int, CONST_ARR[m] assign_arr){
+
+
+CONST interpret([int n], NODE root, CONST[n] assign){
   switch (root){
-    case SRC_INT: return new CONST_INT(val = assign_int[root.id]);
-    case ARR_R: {
-
+    case CONST: return root;
+    case SRC: {
+        assert(assign[root.id].type == root.type);
+        return assign[root.id];
     }
-
+    case ARR_R: {
+        CONST index = interpret(root.index,assign);
+        CONST inputarr = interpret(root.inputarr,assign);
+        assert(index.type == BOOL || index.type == INT);
+        assert(inputarr.type == BOOL_ARR || inputarr.type == INT_ARR);
+        assert(index.val >= 0 && index.val < inputarr.sz);//RTODO not good as a constraint - need to be able to evaluate on all inputs!
+        if(inputarr.type == BOOL_ARR) return new CONST(val=inputarr.avals[index.val],sz=0,avals={},type=BOOL);
+        else if(inputarr.type == INT_ARR) return new CONST(val=inputarr.avals[index.val],sz=0,avals={},type=INT);
+        else assert false;        
+    }
+    case ARR_W: {
+        //ARR_W { NODE index; NODE old_array; NODE new_value;}
+        CONST index = interpret(root.index,assign);
+        CONST old_array = interpret(root.old_array,assign);
+        CONST new_value = interpret(root.new_value,assign);
+        assert(index.type == BOOL || index.type == INT);
+        assert((old_array.type == BOOL_ARR && new_value.type ==BOOL) || old_array.type == INT_ARR);
+        assert(new_value.type == BOOL || new_value.type == INT);
+        if(old_array.type == BOOL_ARR){
+            
+        }
+        else if (old_array.type == INT_ARR){
+            
+        }
+        else assert false;
+    }
   }
+}
+void foo(NODE e);
+void fooc(CONST c);
+
+//check that type value is between 0 and 3
+//check things are typed
+//check that synthesized tree doesn't have specific kind of nodes or has fixed number of nodes etc (size fn)
+harness void main(){
+    //NODE e = ??(3,{});
+    NODE e = new ARR_R(index = new SRC(id=0,type=INT),inputarr= new SRC(id=1,type=INT_ARR));
+    CONST[2] assign;
+    assign[0] = new CONST(val=3,sz=0,avals={},type=INT);
+    assign[1] = new CONST(val=-1,sz=6,avals={1,2,3,4,5,6},type=INT_ARR);
+    CONST c = interpret(2,e,assign);
+    assert(c.val == 4);
+    foo(e); 
+    fooc(c);   
 }

@@ -1,0 +1,114 @@
+adt expr{
+    Name {int id;}
+    Num {int val;}
+    //tuple {int first, int second;}
+    //List {int sz; int[sz] arr;}
+    Plus {expr left; expr right;}
+    Mod {expr left; expr right;}
+    Sub {expr left; expr right;}
+    Div {expr left; expr right;}
+    //Call {int id; int nparams; expr[nparams] params;} //need functions in interpret
+    //List operations - need to use Const_List object
+}
+
+adt stmt{
+      If {expr test;int nthen; stmt[nthen] then; int nelse; stmt[nelse] orelse;}
+      Return {expr retval;}
+      FunctionDef {int id;int narg; Name[narg] args; int nstmt; stmt[nstmt] sts;}
+      Assign {expr var; expr rval;}
+      Expr { expr e;} //ignoring the expr value
+      //for loop  ;; or in
+      //while
+      
+}
+
+adt state{
+    Context {int sz; int[sz] vals;}
+}
+
+void interpret_stmt(expr e, ref Context context){
+    switch(e){
+        case Expr: interpret(e.e,context);
+        case Assign: {
+            int id = interpret(e.var,context);
+            assert(id >=0);
+            if(context.sz > id){
+                context.vals[id] = interpret(e.rval,context);
+            }
+            else{
+                //need to extend size of context
+                int[id+1] cvals = -1;
+                for(int i=0;i<context.sz;i++) cvals[i] = context.vals[i]; 
+                cvals[id] = interpret(e.rval,context);
+                context = new Context(sz=id+1,cvals);
+            }
+        }
+    }
+}
+int interpret(expr e, Context context){//may have to make context ref in future
+      switch(e){
+          case Name: return context.vals[e.id];
+          case Num: return e.val;
+          case Plus: {
+              int left = interpret(e.left, context);
+              int right = interpret(e.right, context);
+              return left + right;  
+          }
+          case Sub: {
+              int left = interpret(e.left, context);
+              int right = interpret(e.right, context);
+              return left - right;  
+          }
+          case Mod: {
+              int left = interpret(e.left, context);
+              int right = interpret(e.right, context);
+              return left % right;  
+          }
+          case Div: {
+              int left = interpret(e.left, context);
+              int right = interpret(e.right, context);
+              return left / right;  
+          }         
+      }
+ }
+
+int size(expr e){
+      switch(e){
+          case Name: return 1;
+          case Num: return 1;
+          case Plus: return size(e.left) + size(e.right) + 1;  
+          case Sub: return size(e.left) + size(e.right) + 1;  
+          case Mod: return size(e.left) + size(e.right) + 1;  
+          case Div: return size(e.left) + size(e.right) + 1;  
+      }
+ }
+
+void sanity_checks(expr e){
+      switch(e){
+          case Name: {
+            assert (e.id == 0 || e.id == 1);
+          }
+          case Num: {
+            assert (e.val < 100);
+          }
+          case Plus: return;  
+          case Sub: return;
+          case Mod: return;
+          case Div: return;
+      }
+ }
+
+ harness void main(int a, int b){
+    //assume b > 0;
+    assume (a==7 || a == 6);
+    assume (b==3 || a == 4);
+    
+    //expr e = new Plus(left=new Name(id=0),right=new Name(id=1));
+    expr e = ??(5,{});
+    assert (size(e) == 5); 
+    sanity_checks(e);
+    int[2] values = {a,b};
+    Context context = new Context(sz=2,vals=values);
+    int eval_val = interpret(e,context);
+    assert(eval_val == a + a/b);
+ }

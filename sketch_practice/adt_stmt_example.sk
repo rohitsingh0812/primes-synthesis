@@ -1,0 +1,134 @@
+//Assumption: One function with returns and no recursive calls
+adt expr{
+    Name {int id;}
+    Num {int val;}
+    Plus {expr left; expr right;}
+    Sub {expr left; expr right;}
+    Mult {expr left; expr right;}
+    Div {expr left; expr right;}
+    Mod {expr left; expr right;}
+    //Call {int id; int nparams, expr[nparams] params;}
+}
+
+
+adt stmt{
+      If {expr test;int nthen; stmt[nthen] then; int nelse; stmt[nelse] orelse;}
+      Return {expr retval;}
+      //FunctionDef {int id;int narg; Name[narg] args; int nstmt; stmt[nstmt] sts;}
+      Assign {Name var; expr rval;}
+      Expr { expr e;} //ignoring the expr value
+      While { expr test; int nstmt; stmt[nstmt] sts;}
+}
+
+adt state{
+    Context {int sz; int[sz] vals; /*int fsz; FunctionDef[fsz] functions;*/ int return_value;}
+}
+
+
+void interpret_stmt(stmt s, ref Context context){
+    switch(s){
+        case Expr: interpret(s.e,context);        
+	    case Assign: {
+            int id = s.var.id; 
+            assert(id >=0);
+            if(context.sz > id){ 
+                context.vals[id] = interpret(s.rval,context); 
+            }
+            else{
+                //need to extend size of context
+                int[id+1] cvals = -1;
+                for(int i=0;i<context.sz;i++) cvals[i] = context.vals[i]; 
+                cvals[id] = interpret(s.rval,context);
+                //context = new Context(sz=id+1,cvals);
+                context.sz = id+1;
+                context.vals = cvals;
+            }
+        }
+	    /*case FunctionDef: { 
+		    //First time we encountered the function definition, add it to context
+		    assert(context.fsz <= s.id); //Function not already defined
+		    context.fsz = s.id + 1;
+            FunctionDef[context.fsz] new_functions;
+            for(int i=0;i<context.fsz;i++) new_functions[i] = context.functions[i];
+            new_functions[s.id] = s;
+		    context.functions = new_functions;
+	    }*/
+	    case If: {
+		    int test = interpret(s.test, context);
+		    if (test) {
+			    for (int i = 0; i < s.nthen; i ++) interpret_stmt(s.then[i], context);
+		    }
+		    else {
+			    for (int i = 0; i < s.nelse; i ++) interpret_stmt(s.orelse[i], context);
+		    }
+
+	    }
+    }
+}
+
+
+int interpret(expr e, Context context){//may have to make context ref in future
+      switch(e){
+          case Name: return context.vals[e.id];
+          case Num: return e.val;
+          case Plus: {
+              int left = interpret(e.left, context);
+              int right = interpret(e.right, context);
+              return left + right;  
+          }
+          case Sub: {
+              int left = interpret(e.left, context);
+              int right = interpret(e.right, context);
+              return left - right;  
+          }
+          case Mult: {
+              int left = interpret(e.left, context);
+              int right = interpret(e.right, context);
+              return left * right;  
+          }
+          case Div: {
+              int left = interpret(e.left, context);
+              int right = interpret(e.right, context);
+              return left / right;  
+          }      
+          case Mod: {
+              int left = interpret(e.left, context);
+              int right = interpret(e.right, context);
+              return left % right;  
+          }
+          /*case Call: {
+            //Lookup for this function in context
+            assert(context.fsz > s.id);//functions must be defined already
+            //collect all values of paramters and then add them to a new context
+            Context new_context
+            // 
+	     }*/ 
+      }
+ }
+
+int size(expr e){
+      switch(e){
+          case Name: return 1;
+          case Num: return 1;
+
+          case Plus: return size(e.left) + size(e.right) + 1;  
+          case Sub: return size(e.left) + size(e.right) + 1;  
+          case Mult: return size(e.left) + size(e.right) + 1;  
+          case Div: return size(e.left) + size(e.right) + 1;  
+          case Mod: return size(e.left) + size(e.right) + 1; 
+      }
+ }
+
+ harness void main(int a, int b){
+    //assume b > 0;
+    assume (a==7 || a == 6);
+    assume (b==3 || a == 4);
+    
+    //expr e = new Plus(left=new Name(id=0),right=new Name(id=1));
+    expr e = ??(5,{});
+    assert (size(e) == 5); 
+    int[2] values = {a,b};
+    Context context = new Context(sz=2,vals=values);
+    int eval_val = interpret(e,context);
+    assert(eval_val == a + a/b);
+ }

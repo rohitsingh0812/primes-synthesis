@@ -1,0 +1,74 @@
+#define NUMVARS 2
+#define NODECUTOFF 12
+#define MAXCONST 1
+#define GENCALL(XX) gen_e(XX,num_nodes,cif, clt, cnum, cvar, cplus,cmult)
+void PRINT_CONST(int x);
+void PRINT_VAR(int id);
+void PRINT_PLUS();
+void PRINT_MULT();
+void PRINT_LT();
+void PRINT_IF();
+adt expr{
+    Num {int val;}
+    Var {int id;}
+    Plus {expr left; expr right;}
+}
+
+adt state{
+	State {int ret; bit[NUMVARS] tainted;}
+}
+
+bit[NUMVARS] bitwise_or(bit[NUMVARS] x, bit[NUMVARS] y){
+	bit[NUMVARS] res = false;
+	for(int i=0;i<NUMVARS;i++){
+		res[i] = (x[i] || y[i]);
+	}
+	return res;
+}
+
+State interpret(expr e, int[NUMVARS] context){
+	switch(e){
+		case Num: return new State(ret=e.val,tainted=false);
+		case Var: {
+			bit[NUMVARS] tainted_arr = false;
+			tainted_arr[e.id] = true;
+			return new State(ret=context[e.id],tainted=tainted_arr);
+		}
+        case Plus: {
+			State left = interpret(e.left, context);
+			State right = interpret(e.right, context);
+			int rval = left.ret + right.ret;		
+			if(left.ret == 0 && right.ret==0){
+				return new State(ret=rval,tainted=false);
+			}
+			else if (left.ret==0){
+				return new State(ret=rval,tainted=right.tainted);
+			}
+			else if (right.ret==0){
+				return new State(ret=rval,tainted=left.tainted);
+			}
+			else{
+				//join the two tainted values, logical or
+				return new State(ret=rval,tainted=(bitwise_or(left.tainted,right.tainted)));
+			}
+        }
+	}
+}
+
+bit is_true(bit[NUMVARS] x){
+	for(int i=0;i<NUMVARS;i++){
+		if(x[i] == false) return false;
+	}
+	return true;
+}
+
+harness void synthesize(){
+	expr e = ??(2); //new Plus(left=new Var(id=0),right=new Var(id=1));//gen_e(2,nn,cif, clt, cnum, cvar,cplus,cmult); //AST of depth 2
+	int[NUMVARS] inp = {1,2};
+	
+	State r = interpret(NUMVARS, e, inp);
+	assert(is_true(r.tainted));
+	
+	assert( r.ret == 3); //input-output example
+
+}

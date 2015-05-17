@@ -1,0 +1,134 @@
+adt node{
+      Name{ int id; }
+      Num{ int val; }
+      Plus {node left; node right;}
+      Mod {node left; node right;}
+      Sub {node left; node right;}
+      Div {node left; node right;}
+      NotEq {node left; node right;}
+//      Call {int id; node param;}
+      If {node test; node then; node orelse;}
+      Return {node retval;}
+      FunctionDef {int id; Name arg;int n; node[n] stmts;}
+      Assign {Name var; node rval;}
+ }
+
+
+int retval;
+
+ void interpret([int n, int m], node e,ref int[n] assign, FunctionDef[m] functions){
+      switch(e){
+          case Name: retval = assign[e.id];
+          case Num: retval = e.val;
+          case Plus: {
+              interpret(e.left, assign, functions);
+              int left = retval;
+              interpret(e.right, assign, functions);
+              int right = retval;
+              retval = right + left;  
+        }
+        case Sub: {
+              interpret(e.left, assign, functions);
+              int left = retval;
+              interpret(e.right, assign, functions);
+              int right = retval;
+              retval = left - right;  
+        }
+          case Mod: {
+              interpret(e.left,assign,functions);
+              int left = retval;
+              interpret(e.right,assign,functions);
+              int right = retval;
+              retval = left%right;
+          }
+
+          case Div: {
+              interpret(e.left, assign,functions);
+              int left = retval;
+              interpret(e.right, assign, functions);
+              int right = retval;
+              retval = left/right;
+	     } 
+         case NotEq: {
+              interpret(e.left, assign,functions);
+              int left = retval;
+              interpret(e.right, assign,functions);
+              int right = retval;
+              retval = (left != right);
+          }
+          case If: {
+                interpret(e.test,assign,functions);
+                if(retval == 1){
+                    interpret(e.then,assign,functions);
+                }
+                else{
+                    interpret(e.orelse,assign,functions);
+                }
+          }
+          case Return: {
+              interpret(e.retval,assign,functions);
+         }
+/*          case Call: {
+               assert false;
+               interpret(e.param,assign,functions); //get paramval
+               assign[functions[e.id].arg.id] = retval;
+               interpret(functions[e.id].stmts,assign,functions);
+          }*/
+          case FunctionDef: {
+               functions[e.id] = e;
+               for (int i = 0; i < e.n; i++){
+                    interpret(e.stmts[i], assign, functions);
+               }
+          }
+          case Assign:{
+            interpret(e.rval,assign,functions);
+            assign[e.var.id] = retval;
+          }
+      }
+      //assert false;
+ }
+
+
+
+ void foo(int x);
+
+ int sumDigits(int x){
+ 	if(x/10 != 0){
+		return x%10 + sumDigits(x/10);
+	}
+	else{
+		return x;
+	}
+ }
+
+int hundreds(int x){
+    int hundredsDigit = (x%1000 - x%100)/100;
+    return hundredsDigit;
+}
+
+ harness void main (){
+   //node e = ??(5,{new Num(val=10), new Num(val=0), new Name(id=0)});
+   /*node e = new FunctionDef(id=0,arg = new Name(id=0),n=1, stmt = new If(
+              test=new NotEq(left=new Div(left=new Name(id = 0),right=new Num(val=10)),right=new Num(val=0)),
+              then=new Return(retval=new Plus(left=new Mod(left=new Name(id=0),right=new Num(val=10)),right=new Call(id=0,param=new Div(left=new Name(id=0),right=new Num(val=10))))),
+              orelse=new Return(retval=new Name(id=0))
+            )
+          );
+
+   stmts[2] = {new Assign(new Name(id = 1), new Div(left=new Sub(left=new Mod(left=new Name(id = 0), right=new Num(val = 1000)), right=new Mod(left=new Name(id = 0), right=new Num(val = 100))),right=new Num(val = 100))), new Return(retval = new Name(id=1))};*/
+   node[2] st;
+//   st[0] = new Assign(var=new Name(id = 1), rval=new Div(left=new Sub(left=new Mod(left=new Name(id = 0), right=new Num(val = 1000)), right=new Mod(left=new Name(id = 0), right=new Num(val = 100))),right=new Num(val = 100)));
+   node exp = ??(4,{new Num(val=1000),new Num(val=100)});
+   st[0] = new Assign(var=new Name(id = 1), rval=exp );
+   st[1] = new Return(retval=new Name(id=1));
+
+   st[1] = new Return(retval=new Name(id=1));
+   node e = new FunctionDef(id = 0, arg = new Name(id = 0),n=2, stmts=st);
+   int x = 124124;
+   int hundredsDigit = -1;
+   int[2] assign = {x, hundredsDigit};
+   FunctionDef[1] functions;
+   interpret(e,assign,functions);
+   assert(retval  == hundreds(x));
+   foo(retval);
+ }

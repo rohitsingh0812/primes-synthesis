@@ -1,0 +1,305 @@
+
+	
+#include "config.skh"
+#define NUMVARS 3
+#define NODECUTOFF 16
+#define MAXCONST 8
+#define GENCALL(XX) gen_e(XX,num_nodes,cif, clt, cnum, cvar, cplus,cmult)
+#define ISDIFF(k,l) !(i0_##k == i0_##l && i1_##k == i1_##l && i2_##k == i2_##l && op_##k == op_##l)
+#define PRINTINP(d) print_inp(i0_##d,i1_##d,i2_##d,op_##d);
+#define DEFS(N) int i0_##N; int i1_##N; int i2_##N; int op_##N;
+void PRINT_CONST(expr e, int x);
+void PRINT_VAR(expr e, int id);
+void PRINT_PLUS(expr e, expr left,expr right);
+void PRINT_MULT(expr e, expr left,expr right);
+void PRINT_LT(expr e, expr left,expr right);
+void PRINT_IF(expr e, expr i,expr t, expr e);
+void print_int(int x);
+void print_inp(int i0,int i1,int i2,int op);
+
+adt expr{
+    Num {int val;}
+    Var {int id;}
+    Plus {expr left; expr right;}
+    Mult {expr left; expr right;}
+    Lt {expr left; expr right;}
+    Ite {expr e_if; expr e_then; expr e_else;}
+    //Div {expr left; expr right;}
+    //Sub {expr left; expr right;}
+}
+
+adt state{
+	Retval {int ret; bit t0; bit t1; bit t2; bit t3; bit t4; bit t5;}
+}
+
+
+/*Retval binOp(expr e, Retval left, Retval right){
+	int rval;
+	switch(e){
+		case Plus: {
+			rval = left.ret + right.ret;		
+		}
+		case Mult: {
+			rval = left.ret * right.ret;		
+		}
+		case Lt: {
+			rval = left.ret < right.ret;		
+		}
+		default: {
+			assert(false);
+		}
+	}
+	if(left.ret == 0 && right.ret==0){
+		assert(false);
+		return new Retval(ret=rval,tainted=false_arr());
+	}
+	else if (left.ret==0 && right.ret != 0){
+		assert(false);
+		return new Retval(ret=rval,tainted=right.tainted);
+	}
+	else if (left.ret != 0 && right.ret==0){
+		assert(false);
+		return new Retval(ret=rval,tainted=left.tainted);
+	}
+	else{
+		//join the two tainted values, logical or
+		return new Retval(ret=rval,tainted=bor(left.tainted,right.tainted));
+	}
+}*/
+
+Retval interpret(expr e, int[NUMVARS] context, ref int ctr){
+	switch(e){
+		case Num: {
+			bit lt0 = (ctr==0);
+			bit lt1 = (ctr==1);
+			bit lt2 = (ctr==2);
+			bit lt3 = (ctr==3);
+			bit lt4 = (ctr==4);
+			bit lt5 = (ctr==5);
+			ctr++;
+			return new Retval(ret=e.val,t0=lt0,t1=lt1,t2=lt2,t3=lt3,t4=lt4,t5=lt5);
+		}
+		case Var: {
+			bit lt0 = (ctr==0);
+			bit lt1 = (ctr==1);
+			bit lt2 = (ctr==2);
+			bit lt3 = (ctr==3);
+			bit lt4 = (ctr==4);
+			bit lt5 = (ctr==5);
+			ctr++;		
+			return new Retval(ret=context[e.id],t0=lt0,t1=lt1,t2=lt2,t3=lt3,t4=lt4,t5=lt5);
+		}
+        case Plus: {
+			Retval left = interpret(e.left,context,ctr);
+        	Retval right = interpret(e.right,context,ctr);
+			
+        	bit lt0 = left.t0 || right.t0;
+			bit lt1 = left.t1 || right.t1;
+			bit lt2 = left.t2 || right.t2;	
+			bit lt3 = left.t3 || right.t3;	
+			bit lt4 = left.t4 || right.t4;	
+			bit lt5 = left.t5 || right.t5;	
+			if(left.ret == 0) { lt0 = right.t0; lt1 = right.t1; lt2 = right.t2; lt3 = right.t3; lt4 = right.t4; lt5 = right.t5;}
+			if(right.ret == 0) { lt0 = left.t0; lt1 = left.t1; lt2 = left.t2; lt3 = left.t3; lt4 = left.t4; lt5 = left.t5;}
+			
+			return new Retval(ret=left.ret + right.ret,t0=lt0,t1=lt1,t2=lt2,t3=lt3,t4=lt4,t5=lt5);
+        }
+		case Mult: {
+      		Retval left = interpret(e.left,context,ctr);
+        	Retval right = interpret(e.right,context,ctr);
+        	bit lt0 = left.t0 || right.t0;
+			bit lt1 = left.t1 || right.t1;
+			bit lt2 = left.t2 || right.t2;	
+			bit lt3 = left.t3 || right.t3;	
+			bit lt4 = left.t4 || right.t4;	
+			bit lt5 = left.t5 || right.t5;	
+			if(left.ret == 0 || right.ret==0) {  lt0 = 0; lt1=0; lt2=0; lt3 = 0; lt4=0; lt5=0; }
+			if(left.ret == 1) { lt0 = right.t0; lt1 = right.t1; lt2 = right.t2; lt3 = right.t3; lt4 = right.t4; lt5 = right.t5;}
+			if(right.ret == 1){ lt0 = left.t0; lt1 = left.t1; lt2 = left.t2; lt3 = left.t3; lt4 = left.t4; lt5 = left.t5;}
+			return new Retval(ret=left.ret * right.ret,t0=lt0,t1=lt1,t2=lt2,t3=lt3,t4=lt4,t5=lt5);
+        }
+        case Lt: {
+        	Retval left = interpret(e.left,context,ctr);
+        	Retval right = interpret(e.right,context,ctr);
+			bit lt0 = left.t0 || right.t0;
+			bit lt1 = left.t1 || right.t1;
+			bit lt2 = left.t2 || right.t2;	
+			bit lt3 = left.t3 || right.t3;	
+			bit lt4 = left.t4 || right.t4;	
+			bit lt5 = left.t5 || right.t5;	
+			return new Retval(ret=left.ret < right.ret,t0=lt0,t1=lt1,t2=lt2,t3=lt3,t4=lt4,t5=lt5);
+        }
+        case Ite: {
+        	expr eif = e.e_if;
+			switch (eif) {
+				case Lt:{
+					Retval val_if = interpret(e.e_if, context,ctr);
+					Retval val_then = interpret(e.e_then, context,ctr);
+					Retval val_else = interpret(e.e_else, context,ctr);
+					
+			  		if(val_if.ret > 0){
+				        
+				        bit lt0 = val_if.t0 || val_then.t0;
+						bit lt1 = val_if.t1 || val_then.t1;
+						bit lt2 = val_if.t2 || val_then.t2;	
+						bit lt3 = val_if.t3 || val_then.t3;
+						bit lt4 = val_if.t4 || val_then.t4;
+						bit lt5 = val_if.t5 || val_then.t5;	
+				        return new Retval(ret=val_then.ret,t0=lt0,t1=lt1,t2=lt2,t3=lt3,t4=lt4,t5=lt5);
+			  		}
+			  		else{
+				        
+				        bit lt0 = val_if.t0 || val_else.t0;
+						bit lt1 = val_if.t1 || val_else.t1;
+						bit lt2 = val_if.t2 || val_else.t2;	
+						bit lt3 = val_if.t3 || val_else.t3;
+						bit lt4 = val_if.t4 || val_else.t4;
+						bit lt5 = val_if.t5 || val_else.t5;	
+				        return new Retval(ret=val_else.ret,t0=lt0,t1=lt1,t2=lt2,t3=lt3,t4=lt4,t5=lt5);
+			  		}
+				}
+				default:{
+					assert(false);
+				}
+			}
+        	
+        }
+	}
+}
+
+generator expr gen_e(int depth, ref int num_nodes, ref int cif, ref int clt, ref int cnum, ref int cvar, ref int cplus, ref int cmult){
+    assert(depth >= 0);
+    assert(num_nodes <= NODECUTOFF);
+    expr e_res;
+    int stop = ??;
+    if(depth == 0 || stop > 0){
+        int choice = ??; 
+        if(NNUM > 0 && choice == 0){
+            int v = (??)%MAXCONST;
+            cnum++;
+            e_res = new Num(val=v);
+            PRINT_CONST(e_res,v);
+            return e_res;
+        }
+        else if(NVAR > 0){
+            int id = (??)%NUMVARS;
+            cvar++;
+            e_res = new Var(id=id);
+			PRINT_VAR(e_res,id);
+            return e_res;
+        }
+        
+    }
+    else{
+        int choice = ??; 
+        if(NPLUS > 0 && choice == 0){
+            num_nodes+=2;
+            cplus++;
+            expr e_left=GENCALL(depth-1);
+            expr e_right =GENCALL(depth-1);
+            e_res = new Plus(left=e_left,right=e_right);
+            PRINT_PLUS(e_res,e_left,e_right);
+            return e_res;
+        }
+        else if (NMULT > 0 && choice ==1){
+            num_nodes+=2;
+            cmult++;
+			expr e_left = GENCALL(depth-1);
+            expr e_right = GENCALL(depth-1);
+            e_res = new Mult(left=e_left,right=e_right);
+            PRINT_MULT(e_res,e_left,e_right);
+            return e_res;
+        }
+        else if (NLT > 0 && choice ==2){
+            num_nodes+=2;
+            clt++;
+            expr e_left = GENCALL(depth-1);
+            expr e_right = GENCALL(depth-1);
+            e_res = new Lt(left=e_left,right=e_right);
+            PRINT_LT(e_res,e_left,e_right);
+            return e_res;
+        }
+        else if(NIF > 0){
+            expr e_i=GENCALL(depth-1);
+            expr e_t=GENCALL(depth-1);
+            expr e_e=GENCALL(depth-1);
+            num_nodes+=3;
+            cif++;
+            e_res = new Ite(e_if=e_i,e_then=e_t,e_else=e_e);
+            PRINT_IF(e_res,e_i,e_t,e_e);
+            return e_res;
+        }
+    }
+}
+
+
+harness void synthesize(){
+    int nn = 0;
+    int cif=0;int clt=0;int cnum=0;int cvar=0; int cplus = 0;int cmult=0; int ctr;
+	expr e = gen_e(DEPTH,nn,cif, clt, cnum, cvar,cplus,cmult); //AST of depth 2
+	print_int(nn);
+	int sumtaints =0;
+	/*assert(cif <= 2);
+	assert(clt <= 2);
+	assert(cnum <= 2);
+	assert(cvar <=8);
+	assert (nn >=6);*/
+	assert(cif == NIF && clt == NLT && cnum == NNUM && cvar == NVAR && cplus == NPLUS && cmult == NMULT);
+	DEFS(0); DEFS(1); DEFS(2); DEFS(3); DEFS(4);
+		i0_0=??;i1_0=??;i2_0=??;op_0=??; ctr = 0;
+		Retval r0 = interpret(e, {i0_0,i1_0,i2_0},ctr);
+		assert(ctr==NVAR+NNUM);
+		assert( r0.ret == op_0); //input-output example
+
+		i0_1=??;i1_1=??;i2_1=??;op_1=??;ctr = 0;
+		Retval r1 = interpret(e, {i0_1,i1_1,i2_1},ctr);
+		assert(ctr==NVAR+NNUM);
+		assert( r1.ret == op_1); //input-output example
+
+		i0_2=??;i1_2=??;i2_2=??;op_2=??;ctr = 0;
+		Retval r2 = interpret(e, {i0_2,i1_2,i2_2},ctr);
+		assert(ctr==NVAR+NNUM);
+		assert( r2.ret == op_2); //input-output example
+
+		i0_3=??;i1_3=??;i2_3=??;op_3=??;ctr = 0;
+		Retval r3 = interpret(e, {i0_3,i1_3,i2_3},ctr);
+		assert(ctr==NVAR+NNUM);
+		assert( r3.ret == op_3); //input-output example
+
+		i0_4=??;i1_4=??;i2_4=??;op_4=??;ctr = 0;
+		Retval r4 = interpret(e, {i0_4,i1_4,i2_4},ctr);
+		assert(ctr==NVAR+NNUM);
+		assert( r4.ret == op_4); //input-output example
+
+
+		assert(r0.t0 || r1.t0 || r2.t0 || r3.t0 || r4.t0);
+		assert(r0.t1 || r1.t1 || r2.t1 || r3.t1 || r4.t1);
+		assert(r0.t2 || r1.t2 || r2.t2 || r3.t2 || r4.t2);
+		assert(r0.t3 || r1.t3 || r2.t3 || r3.t3 || r4.t3);
+		assert(r0.t4 || r1.t4 || r2.t4 || r3.t4 || r4.t4);
+		assert(r0.t5 || r1.t5 || r2.t5 || r3.t5 || r4.t5);
+
+		sumtaints = 30-(r0.t0 + r1.t0 + r2.t0 + r3.t0 + r4.t0 + r0.t1 + r1.t1 + r2.t1 + r3.t1 + r4.t1 + r0.t2 + r1.t2 + r2.t2 + r3.t2 + r4.t2 + r0.t3 + r1.t3 + r2.t3 + r3.t3 + r4.t3 + r0.t4 + r1.t4 + r2.t4 + r3.t4 + r4.t4 + r0.t5 + r1.t5 + r2.t5 + r3.t5 + r4.t5);
+		minimize (sumtaints);
+	//across c's all I/O's should be different at at least one point
+	PRINTINP(0);
+	PRINTINP(1);
+	PRINTINP(2);
+	PRINTINP(3);
+	PRINTINP(4);
+	
+	assert(ISDIFF(0,1));
+	assert(ISDIFF(0,2));
+	assert(ISDIFF(0,3));
+	assert(ISDIFF(0,4));
+	assert(ISDIFF(1,2));
+	assert(ISDIFF(1,3));
+	assert(ISDIFF(1,4));
+	assert(ISDIFF(2,3));
+	assert(ISDIFF(2,4));
+	assert(ISDIFF(3,4));
+}
+
+
+
+

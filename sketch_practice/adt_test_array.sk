@@ -1,0 +1,39 @@
+struct ArrStruct{
+    int sz;
+    int[sz] Arr;
+    int dflt;
+}
+
+
+adt NODE {
+    Op {NODE left; NODE right;}
+    Const {int val;}
+    Arr {int sz; int[sz] arr; int dflt;}
+}
+
+void foo(NODE e);
+
+generator NODE nodegen(int depth){
+    if(depth == 1){ 
+        if(??){
+            return new Const(val=??);
+        }
+        else{
+            int SZ=??+1;
+            int[SZ] array;
+            for(int i=0;i<SZ;i++) array[i]=??;
+            return new Arr(sz=SZ,arr=array,dflt=0);
+        }
+    }
+    else{
+        return new Op(left=nodegen(depth-1),right=nodegen(depth-1));
+    }
+}
+
+harness void main(){
+    int[2] ax = {1,2};
+    //NODE e = new Arr(sz=2,arr=ax,dflt=0);
+    NODE e = ??(3,{});
+    //NODE e = nodegen(3);
+    foo(e);
+}

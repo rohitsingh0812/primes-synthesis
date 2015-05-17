@@ -1,0 +1,4 @@
+harness void doublesketch(int x){
+	int t = x * ??;
+	assert t == x + x;
+}

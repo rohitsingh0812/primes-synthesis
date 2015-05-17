@@ -1,0 +1,7 @@
+#define NIF 1
+#define NLT 1
+#define NNUM 2
+#define NVAR 4
+#define NPLUS 1
+#define NMULT 1
+#define DEPTH 2

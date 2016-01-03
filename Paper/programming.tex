@@ -1,0 +1,71 @@
+\section{Programming Problems} \label{sec:programming}
+
+In our system for generating programming problems, users first choose a set of programming constructs that they wish to practice (e.g. control statements, recursion). These constructs are then modeled in Sketch as a subset of Python Abstract Syntax Trees (ASTs) using Abstract Data Types (ADTs). The system then generates a program from the Sketch ADT along with random input/output examples. This complete program can be converted into a partial program by removing pieces and inserting blanks. This partial program with its input/output examples are then presented to the user to solve. 
+
+\subsection{Overview of Tools and Methods} 
+
+Our development of an automatic problem generation system is based on preliminary understanding of three methods: parsing of programs using the Python Abstract Syntax Tree (AST) library, use of Abstract Data Types (ADTs), and the Sketch synthesis tool.
+
+\subsubsection{Sketch Program Synthesis System}
+
+Sketching is a new program synthesis technology that helps programmers write complicated code by self-deriving many details based on constraints. It allows users to leave holes (expressed as double question marks \texttt{??} in place of complicated code fragments and is able to synthesize full programs to fill in these holes. Sketch syntax is mostly based on C++, with mainly the addition of the expression \texttt{??} to represent holes.
+
+\begin{singlespace}
+\begin{figure}
+\begin{lstlisting}[language=C++]
+harness void doublesketch(int x){
+  int t = x*??;
+  assert t == x + x;
+}
+\end{lstlisting}
+\caption{Sample Sketch program}
+\label{fig:sketch-example}
+\end{figure}
+\end{singlespace}
+
+Figure \ref{fig:sketch-example} shows an example Sketch program that will synthesize a value of \texttt{??} such that \texttt{x + x = x * ??}, where \texttt{x} is a parameter passed to the function. The output of the program will be the the same statement with \texttt{??} replaced by the number \texttt{2}.
+
+\subsubsection{The Python Abstract Syntax Tree (AST) Library}
+
+Python’s AST modules processes Python programs as trees in Python abstract syntax grammar. In an abstract syntax tree, each part of the program is broken down into nodes that represent different values such as expressions, variables, integers, booleans, etc. We represent our Python programs as Python ASTs to map and control the grammar of the program. Figure 2 shows an AST of a simple program with three statements.
+
+%TODO: INCLUDE FIGURE 2
+
+\subsubsection{Sketch Abstract Data Types (ADTs)}
+
+Python AST’s are expressed in Sketch as Abstract Data Types (ADTs), which are data structures defined by the user to model behavior of certain operations. ADTs are defined in Sketch with as the type \textbf{adt}. Figure 3 gives an example of how Python ASTs are modeled as ADT’s in Sketch. Each possible AST node is imperatively implemented as a sketch ADT \textbf{expr} object.
+
+%TODO: INCLUDE FIGURE 3
+
+\subsection{System Overview}
+
+Our system can be broken into four concrete steps from user input of constructs to user submission of solution. The steps are as follows:
+
+\begin{singlespace}
+\begin{enumerate}
+\item \textbf{Translation} of user’s specification of constructs to Sketch ADT specification that incorporates grammar to test those constructs.
+\item \textbf{Sketch solving} of the ADT to generate a full Python program (abstractly modelled as a Python AST) along with input/output examples that describe the program.
+\item \textbf{Abstraction} of the full Python AST into a partially complete AST with blanks to make into an interesting programming problem for the user.
+\item \textbf{Presentation} of the program to the user formatted as a regular program with blanks. 
+\end{enumerate}
+\end{singlespace}
+
+Figure 4 shows these steps in a flow chart.
+
+%TODO: INCLUDE FIGURE 4
+
+\subsection{Complete Example}
+
+Suppose the user specifies the constructs he or she wishes to practice to be constants, variables, and arithmetic. Figure 5 shows the Sketch ADT that encompasses these constructs and its accompanying interpret statement.
+
+%TODO: INCLUDE FIGURE 5
+
+Sketch is able to synthesize a full Python AST from these abstract data type objects using a \textbf{harness void} function. 
+
+%TODO: INCLUDE FIGURE 6
+
+This synthesis is able to generate the short program containing a single expression. Figure 7.1 depicts an abstract syntax tree modeling a generated program, and Figure 7.2 shows the incomplete expression that would then be presented with input/output examples to the user.
+
+%TODO: INCLUDE FIGURE 7
+
+

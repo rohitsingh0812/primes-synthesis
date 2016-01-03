@@ -1,0 +1,173 @@
+\section{Math Problems} \label{sec:math}
+
+For generating math problems, we present a technique broken down into four main steps:
+
+\begin{singlespace}
+\begin{enumerate}
+\item Translate the user's specification of constructs to a specification class that incorporates a question template and constraints.
+\item Generate input/output parameters adhering to problem constraints by passing an instance of the problem specification to a problem solver. 
+\item Present the problem to user by formatted as the problem template with the generated input parameter values.
+\item Check the user's solution to the problem with the generated output values.
+\end{enumerate}
+\end{singlespace}
+
+With manual specification of each type of problem, we are able to generate simple analytic geometry problems and calculus problems involving derivatives. Examples of problems in these categories include:
+
+\begin{singlespace}
+\begin{itemize}
+\item \texttt{Find the equation of the line with slope -12 and passing through point (-68, 5).} (Analytic Geometry)
+\item \texttt{Find the equation of the line passing through point (14, 5) and point (-6, -5).} (Analytic Geometry)
+\item \texttt{Find the slope of the line perpendicular to the line 3x + 4y = 5.} (Analytic Geometry)
+\item \texttt{Find the equation of the line perpendicular to the line 3x + 4y - 11 = 0 at point (1, 2).} (Analytic Geometry)
+% TODO: PUT IN MORE PROBLEM EXAMPLES, EXAMPLES FROM CALCULUS
+\end{itemize}
+\end{singlespace}
+
+\subsection{Problem Specification}
+
+The problem specification includes three components of the problem: (i) question template i.e. a string with holes where input values are not yet determined, (ii) constraints, bounds, and correctness methods which check that the input and output parameters adhere to the constraints that the user wishes to incorporate, (iii) input and output parameters.
+
+Currently the user must manually specify the concrete methods in a specification class. We are working to make the process more automated and user-friendly so that users do not need to write code in order to generate problems of the constraints they wish to apply. Figure \ref{fig:specification} shows a general abstract template for all specification classes. Figure \ref{fig:problem} shows a concrete specification class for the analytic geometry problem, ``Find the equation of the line with slope $m$ and passing through point $(a, b)$.''
+
+\begin{singlespace}
+\begin{figure}
+\begin{lstlisting}[language=Java]
+public abstract class Specification {
+	public int[] input; // paramaters used in the problem question
+	public int[] output; // parameters used in the problem answer
+	
+	/* Returns a general template for this type of problem.
+	 * e.g. Template(Ax \in R, Ay \in R,Bx \in R,By in R): 
+	 * "Find the distance between point (" + str(Ax) + ", " + str(Ay) + ")" + 
+	 * " and point (" + str(Bx) + ", " + str(By) + "): ")) */
+	public abstract String template();
+	
+	/* Allows solver to set output parameters */
+	public void setOutput(int[] output){
+		this.output = output;
+	}
+	
+	/* Allows solver to set input parameters */
+	public void setInput(int[] input){
+		this.input = input;
+	}
+	
+	/* Returns true if input parameters satisfy user-specified constraints */
+	public abstract boolean constraints();
+	
+	/* Returns true if output parameters satisfy problem correctness */
+	public abstract boolean correct();
+	
+	/* Returns bounds for input or output parameters */
+	public abstract int[][] bounds();
+}
+\end{lstlisting}
+\caption{Specification Abstract Class}
+\label{fig:specification}
+\end{figure}
+
+\begin{figure}
+\begin{lstlisting}[language=Java]
+public class Problem1 extends Specification {
+	
+	public Problem1(){
+		super();
+		this.input = new int[3];
+	}
+	
+	public String template(){
+		return "Find the equation of the line with slope " + input[0] + " and "
+		+ "passing through point (" + input[1] + ", " + input[2] + ")";
+	}
+	
+	/* Constrains input parameters to be between the bounds -100 and 100.
+	 * Constrains input parameters so that the point (0, 0) is not on
+	 * the line. */
+	public boolean constraints(){
+		boolean b1 = -100 <= input[0] && input[0] <= 100;
+		boolean b2 = -100 <= input[1] && input[1] <= 100;
+		boolean b3 = -100 <= input[2] && input[2] <= 100;
+		boolean b4 = input[0] * input[1] != input[2];
+		return b1 & b2 & b3 & b4;
+	}
+	
+	/* Dictates that output parameters must satisfy correct equations for
+	 * those of a line. 
+	 */
+	public boolean correct(){
+		return output[1]*input[1] + output[2]*input[2] == output[0] &&
+				(double) input[0] == -(double) output[1]/output[2];
+	}
+	
+	/* Returns bounds of (-100, 100) for input parameters */
+	public int[][] bounds(){
+		int[][] intervals = new int[input.length][2];
+		intervals[0] = new int[]{-100, 100};
+		intervals[1] = new int[]{-100, 100};
+		intervals[2] = new int[]{-100, 100};
+		return intervals;
+	}
+}
+\end{lstlisting}
+\caption{Concrete User Specification for an Analytic Geometry Problem}
+\label{fig:problem}
+\end{figure}
+
+\end{singlespace}
+
+\subsection{Problem Solver}
+
+The problem solver takes an instance of the problem specification class and generates appropriate input/output parameters adhering to the specified constraints, bounds, and correctness. 
+
+\begin{singlespace}
+
+\begin{figure}
+\begin{lstlisting}[language=Java]
+public class Problem1 extends Specification {
+	
+	public Problem1(){
+		super();
+		this.input = new int[3];
+	}
+	
+	public String template(){
+		return "Find the equation of the line with slope " + input[0] + " and "
+		+ "passing through point (" + input[1] + ", " + input[2] + ")";
+	}
+	
+	/* Constrains input parameters to be between the bounds -100 and 100.
+	 * Constrains input parameters so that the point (0, 0) is not on
+	 * the line. */
+	public boolean constraints(){
+		boolean b1 = -100 <= input[0] && input[0] <= 100;
+		boolean b2 = -100 <= input[1] && input[1] <= 100;
+		boolean b3 = -100 <= input[2] && input[2] <= 100;
+		boolean b4 = input[0] * input[1] != input[2];
+		return b1 & b2 & b3 & b4;
+	}
+	
+	/* Dictates that output parameters must satisfy correct equations for
+	 * those of a line. 
+	 */
+	public boolean correct(){
+		return output[1]*input[1] + output[2]*input[2] == output[0] &&
+				(double) input[0] == -(double) output[1]/output[2];
+	}
+	
+	/* Returns bounds of (-100, 100) for input parameters */
+	public int[][] bounds(){
+		int[][] intervals = new int[input.length][2];
+		intervals[0] = new int[]{-100, 100};
+		intervals[1] = new int[]{-100, 100};
+		intervals[2] = new int[]{-100, 100};
+		return intervals;
+	}
+}
+\end{lstlisting}
+\caption{Concrete User Specification for an Analytic Geometry Problem}
+\label{fig:problem}
+\end{figure}
+
+\end{singlespace}
+
+

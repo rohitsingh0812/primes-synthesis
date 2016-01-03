@@ -8,7 +8,7 @@ There has been some previous work on generating new problems in various domains,
 
 More recently, a technique was proposed to generate fill-in-the-blank Java problems where certain keywords, variables and control symbols are removed randomly from a correct solution \cite{javablanks}. The technique blanks variables using the condition that at least one occurrence of each variable remains in the scope and blanks control symbols such that at least one occurrence of a paired symbol (such as brackets) remains. 
 
-Our techniques for generating math and programming problems, however, are more general since they are constrained-based and can check for more interesting constraints such as unique solutions. Our system can also capture the notion of problem difficulty using complexity functions. 
+Our techniques for generating math and programming problems, however, are more general since they are constraint-based and can check for more interesting constraints such as unique solutions. Our system can also capture the notion of problem difficulty using complexity functions. 
 
 The programming problems we generate take the form of partially complete programs with input/output examples. To solve the problem, the user must correctly fill in the blanks in the partial program based on the input/output constraints. Using this technique, we are able to generate simple Python problems that focus on a set of constructs, including arithmetic, lists and list operations, function calls, and control statements. We are working to extend our ADT grammar to support generation of more complex Python programming problems. We also aim to build a feasible user interface for presentation of this system.
 

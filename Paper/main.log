@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.4-1.40.13 (TeX Live 2012) (format=pdflatex 2012.6.30)  3 JAN 2016 12:22
+This is pdfTeX, Version 3.1415926-2.4-1.40.13 (TeX Live 2012) (format=pdflatex 2012.6.30)  3 JAN 2016 12:33
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -613,13 +613,12 @@ LaTeX Font Info:    Font shape `OT1/pcr/bx/it' in size <9> not available
 LaTeX Font Info:    Font shape `OT1/pcr/b/it' in size <9> not available
 (Font)              Font shape `OT1/pcr/b/sl' tried instead on input line 36.
 )
-(./conclusion.tex
+(./conclusion.tex [6] [7]
 Missing character: There is no Õ in font cmr10!
 Missing character: There is no Õ in font cmr10!
- [6] [7] [8]
 Missing character: There is no Õ in font cmr10!
 Missing character: There is no Õ in font cmr10!
-) (./acknowledgements.tex) [9] (./main.bbl)
+) (./acknowledgements.tex) [8] [9] (./main.bbl)
 [10] (./appendix.tex)
 Package atveryend Info: Empty hook `BeforeClearDocument' on input line 35.
  [11]
@@ -629,17 +628,13 @@ Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 35.
 Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 35.
 Package rerunfilecheck Info: File `main.out' has not changed.
 (rerunfilecheck)             Checksum: 7B4E4EB408573EEB694B011D68382FE6;1154.
-
-
-LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
-
 Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 35.
  ) 
 Here is how much of TeX's memory you used:
  10218 strings out of 493488
- 149584 string characters out of 3141326
- 355382 words of memory out of 3000000
- 13171 multiletter control sequences out of 15000+200000
+ 149508 string characters out of 3141326
+ 339428 words of memory out of 3000000
+ 13189 multiletter control sequences out of 15000+200000
  14182 words of font info for 53 fonts, out of 3000000 for 9000
  957 hyphenation exceptions out of 8191
  44i,6n,60p,1167b,1258s stack positions out of 5000i,500n,10000p,200000b,50000s
@@ -656,10 +651,10 @@ exmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/local/texlive/2012/te
 xmf-dist/fonts/type1/urw/courier/ucrb8a.pfb></usr/local/texlive/2012/texmf-dist
 /fonts/type1/urw/courier/ucrbo8a.pfb></usr/local/texlive/2012/texmf-dist/fonts/
 type1/urw/courier/ucrr8a.pfb>
-Output written on main.pdf (11 pages, 195101 bytes).
+Output written on main.pdf (11 pages, 194300 bytes).
 PDF statistics:
- 355 PDF objects out of 1000 (max. 8388607)
- 326 compressed objects within 4 object streams
- 164 named destinations out of 1000 (max. 500000)
+ 335 PDF objects out of 1000 (max. 8388607)
+ 306 compressed objects within 4 object streams
+ 146 named destinations out of 1000 (max. 500000)
  137 words of extra memory for PDF output out of 10000 (max. 10000000)
 

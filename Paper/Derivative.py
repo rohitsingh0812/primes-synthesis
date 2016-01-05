@@ -73,7 +73,7 @@ class Solver:
     def __init__(self, specification):
         spec = specification
 
-    def setProblemParams():
+    def setProblemParams(self):
         dict params, bounds = spec.bounds
 
         for key in bounds.keys():

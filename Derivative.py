@@ -28,8 +28,8 @@ class Specification:
 class PolynomialDerivative(Specification):
 
     def __init__(self):
-        Specification.params = {'x':1, 'p':0, 'a':0, 'b':0, 'c':0, 'd':0, 'e':0, 'f':0, 'g':0}
-        Specification.bounds = {'x': 1, 'p': 5, 'a': 9, 'b': 9, 'c': 9, 'd': 9, 'e': 9, 'f': 9, 'g':9}
+        Specification.params = {'x':0, 'p':0, 'a':0, 'b':0, 'c':0, 'd':0, 'e':0, 'f':0, 'g':0}
+        Specification.bounds = {'x': 5, 'p': 5, 'a': 9, 'b': 9, 'c': 9, 'd': 9, 'e': 9, 'f': 9, 'g':9}
             
         
     def template(self):
@@ -77,6 +77,43 @@ class PolynomialDerivative(Specification):
                 deriv += ((count)*params[chr(i)]) * pow(params['x'],(count-1))
             count -= 1
         ## print "Deriv " + str(deriv)
+        return deriv
+
+class ImplicitDifferentiation(Specification):
+
+    def __init__(self):
+        Specification.params = {'x': 0, 'y':0, 'a':0, 'b':0, 'c':0, 'd':0, 'e':0}
+        Specification.bounds = {'x': 10, 'y':10, 'a':9, 'b':9, 'c':3, 'd':3, 'e':100}
+
+    def template(self):
+        params = Specification.params
+        print "Find dy/dx of the following equation: \n"
+        print str(param['a']) + "x^" + str(params['c']) + " + " + str(params['b']) + "y^" + str(params['d']) + " = " str(params['e'])
+        print "\nAt x=" + str(params['x']) " and y=" str(params['y'])
+
+    def constraints(self):
+        params = Specification.params
+        bounds = Specification.bounds
+        for key in params.keys():
+            if abs(params[key]) > bounds[key]:
+                return False
+        return True
+
+    def compute(self):
+        userAns = input("Your solution: ")
+        while not self.isCorrect(userAns):
+            userAns = input("Incorrect! Try again: ")
+        print "Correct!"
+
+    def isCorrect(self, userAns):
+        if self.calcImplicitDeriv() == userAns and self.constraints():
+            return True
+        return False
+
+    def calcImplicitDeriv(self):
+        xside = params['a']*params['c']*pow(params['x'], params['c']-1)
+        ysdie = params['b']*params['d']*pow(params['y'], params['d']-1)
+        deriv = -1*xside/yside
         return deriv
 
 class Solver:

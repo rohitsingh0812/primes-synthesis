@@ -1,16 +1,14 @@
 \section{Math Problems} \label{sec:math}
 
-For generating math problems, we present a technique broken down into four main steps:
-
+Our technique for generating math problems is broken down into four main steps: 
 \begin{singlespace}
 \begin{enumerate}
-\item Translate the user's specification of constructs to a specification class that incorporates a question template and constraints.
-\item Generate input/output parameters adhering to problem constraints by passing an instance of the problem specification to a problem solver. 
-\item Present the problem to user by formatted as the problem template with the generated input parameter values.
-\item Check the user's solution to the problem with the generated output values.
+\item \textbf{Translation to specification class:} Converting user-specified constructs to a specification class, which programmatically incorporates the problem wording and constraints.
+\item \textbf{Parameter selection by problem solver:} Generating input and output parameters that adhere to problem constraints by passing an instance of the problem specification to a solver class. 
+\item \textbf{Presentation to user:} Displaying the problem to user with the selected input values.
+\item \textbf{Verification of correctness:} Check the user's answer to the problem by comparing with the generated output values.
 \end{enumerate}
 \end{singlespace}
-
 With manual specification of each type of problem, we are able to generate simple analytic geometry problems and calculus problems involving derivatives. Examples of problems in these categories include:
 
 \begin{singlespace}

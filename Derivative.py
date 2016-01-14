@@ -82,14 +82,14 @@ class PolynomialDerivative(Specification):
 class ImplicitDifferentiation(Specification):
 
     def __init__(self):
-        Specification.params = {'x': 0, 'y':0, 'a':0, 'b':0, 'c':0, 'd':0, 'e':0}
-        Specification.bounds = {'x': 10, 'y':10, 'a':9, 'b':9, 'c':3, 'd':3, 'e':100}
+        Specification.params = {'x': 1, 'y':1, 'a':0, 'b':0, 'c':0, 'd':0, 'e':0}
+        Specification.bounds = {'x': 1, 'y':1, 'a':9, 'b':9, 'c':3, 'd':3, 'e':100}
 
     def template(self):
         params = Specification.params
         print "Find dy/dx of the following equation: \n"
-        print str(param['a']) + "x^" + str(params['c']) + " + " + str(params['b']) + "y^" + str(params['d']) + " = " str(params['e'])
-        print "\nAt x=" + str(params['x']) " and y=" str(params['y'])
+        print str(params['a']) + "x^" + str(params['c']) + " + " + str(params['b']) + "y^" + str(params['d']) + " = " + str(params['e'])
+        print "\nAt x=" + str(params['x']) + " and y=" + str(params['y'])
 
     def constraints(self):
         params = Specification.params
@@ -100,7 +100,7 @@ class ImplicitDifferentiation(Specification):
         return True
 
     def compute(self):
-        userAns = input("Your solution: ")
+        userAns = input("Your solution (as an decimal): ")
         while not self.isCorrect(userAns):
             userAns = input("Incorrect! Try again: ")
         print "Correct!"
@@ -111,14 +111,16 @@ class ImplicitDifferentiation(Specification):
         return False
 
     def calcImplicitDeriv(self):
+        params = Specification.params
         xside = params['a']*params['c']*pow(params['x'], params['c']-1)
-        ysdie = params['b']*params['d']*pow(params['y'], params['d']-1)
-        deriv = -1*xside/yside
+        yside = params['b']*params['d']*pow(params['y'], params['d']-1)
+        deriv = float("{0:.3f}".format(float(-1*xside)/yside))
+        print "Derivative "  + str(deriv)
         return deriv
 
 class Solver:
 
-    problem = PolynomialDerivative()
+    problem = ImplicitDifferentiation()
     
     def __init__(self, p):
         problem = p
@@ -130,15 +132,21 @@ class Solver:
         for key in bounds.keys():
             ## print "Vals: " + str(params)
             val = random.randint(1, bounds[key])
-            if key != 'p' and random.randint(1,2) == 1:
-                val *= -1
+            ## if key != 'p' and random.randint(1,2) == 1:
+                ## val *= -1
             params[key] = val
         Solver.problem.setParams(params)
                  
     
 
-p = PolynomialDerivative()
-## print p.bounds
+# p = PolynomialDerivative()
+# ## print p.bounds
+# s = Solver(p)
+# s.setProblemParams()
+# print Solver.problem.template()
+# print Solver.problem.compute
+
+p = ImplicitDifferentiation()
 s = Solver(p)
 s.setProblemParams()
 print Solver.problem.template()
